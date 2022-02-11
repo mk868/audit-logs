@@ -35,9 +35,14 @@
       <artifactId>mapstruct</artifactId>
       <version>${mapstruct.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
+    <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.9.0</version>
