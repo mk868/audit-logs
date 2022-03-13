@@ -1,1 +1,0 @@
-# i18n-logs-with-java-records

@@ -1,0 +1,6 @@
+{"logId":"TEST","createdAt":1647041525249,"params":{"str":"string ABC","number":123,"b":false}}
+{"logId":"TEST","createdAt":1647041526250,"params":{"str":"string ABC","number":123,"b":false}}
+{"logId":"TEST","createdAt":1647041527251,"params":{"str":"string ABC","number":123,"b":false}}
+{"logId":"TEST","createdAt":1647041528252,"params":{"str":"string ABC","number":123,"b":false}}
+{"logId":"TEST","createdAt":1647041529253,"params":{"str":"string ABC","number":123,"b":false}}
+{"logId":"TEST","createdAt":1647041530254,"param

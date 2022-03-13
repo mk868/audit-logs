@@ -1,0 +1,102 @@
+= Audit logs
+
+A simple application demonstrating the implementation of audit logs.
+Audit logs allow for recording application states and events, log entries are stored in the files.
+The architecture allows the internationalization of log messages and incidentally minimizing the size of the log entries.
+
+== Introduction
+
+The application presents the POC of the audit logs of the application running on the embedded system (let's call this application "gateway").
+The embedded system is not connected to the Internet network (only internal network), communication with the system is done through a gateway application using a website or REST API.
+The application is used by several types of users, including customers, technicians and administrators.
+Actions and events triggered by user actions should be recorded in the system in the form of audit logs.
+Due to language differences between different types of users, the logs should be internationalized.
+The preferred way to store logs is in files, so that they can be easily transferred for possible analysis by external tools.
+
+== Implementation
+
+=== Log & log message
+
+Each log is described by the following fields:
+
+- log id -- log type id, used to retrieve log message template from `audit.properties` file
+- cratedAt -- log timestamp
+- params -- a map of additional parameters used to fulfill patterns from the `audit.properties` file
+
+==== An example
+
+The application implements the `TestLog` log type.
+
+.Log record definition
+[source,java]
+----
+@AuditLogId("TEST")
+public record TestLog(String str, int number, boolean b) {
+
+}
+----
+
+The "TEST" label points to the key in the translation templates file.
+The default file with templates is _audit.properties_, but you can create additional ones depending on the location (_audit_de.properties_, _audit_cn.properties_, etc.)
+
+.audit.properties
+----
+TEST=Some test message, string value: '${str}', integer value: ${number}, bool value: ${b}
+----
+
+To create log and append it to the log file use the code:
+
+.Creating log
+[source,java]
+----
+auditLogger.log(new TestLog("string ABC", 123, false));
+----
+
+The log will be serialized and appended to the file, in this example an entry similar to this will be added:
+
+.Entry saved in log file
+[source,json]
+----
+{"logId":"TEST","createdAt":1644600000000,"params":{"str":"string ABC","number":123,"b":false}}
+----
+
+When we want to read entries from a log file (e.g. via REST API) we will read a message:
+
+.Retrieved log message for default locale
+[source]
+----
+Some test message, string value: 'string ABC', integer value: 123, bool value: false
+----
+
+=== Log file structure
+
+Entries in the file are stored as JSON objects -- one entry per line.
+This makes it easy to append new entries -- similar to https://github.com/qos-ch/logback-contrib/blob/master/json/classic/src/main/java/ch/qos/logback/contrib/json/classic/JsonLayout.java[Logback JsonLayout].
+
+*TODO:* To store extra metadata, the first line in the file could store a metadata header (also in the form of a single line JSON object).
+
+== Technical Info
+
+What's used:
+
+- Java 18
+- Spring boot
+* web
+* test
+* MockMVC tests
+* MessageSource
+* HATEOAS
+- GSON
+- records https://openjdk.java.net/jeps/395[JEP-395] -- since java 16
+- code in javadoc https://openjdk.java.net/jeps/413[JEP-413] -- since java 18
+- https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/InstantSource.html[InstantSource] -- since java 17
+- JUnit 5
+- MapStruct
+- Apache commons-text
+
+== TODO
+
+- Move the logic from `com.github.com.mk868.loglib` into a separated Maven project and add to the gateway as a dependency.
+- encrypt logs with -- hybrid encryption?
+ECIES?
+- log file header: file signature + metadata
